@@ -13,8 +13,10 @@ def test_action_engine_success() -> None:
     mock_tool.execute.return_value = "execution success text"
     mock_registry.get_tool.return_value = mock_tool
 
-    # Instantiate engine
-    engine = ActionEngine(registry=mock_registry)
+    # Instantiate engine with mock security manager
+    mock_security = MagicMock()
+    mock_security.verify_execution.return_value = "allowed"
+    engine = ActionEngine(registry=mock_registry, security_manager=mock_security)
     action = Action(action_type="success_tool", parameters={"param1": "val1"})
 
     res = engine.execute_action(action)
@@ -50,7 +52,9 @@ def test_action_engine_execution_crashes() -> None:
     mock_tool.execute.side_effect = Exception("System error occurred")
     mock_registry.get_tool.return_value = mock_tool
 
-    engine = ActionEngine(registry=mock_registry)
+    mock_security = MagicMock()
+    mock_security.verify_execution.return_value = "allowed"
+    engine = ActionEngine(registry=mock_registry, security_manager=mock_security)
     action = Action(action_type="crashing_tool", parameters={})
 
     res = engine.execute_action(action)

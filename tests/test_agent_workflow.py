@@ -39,7 +39,9 @@ def test_agent_workflow_tool_routing() -> None:
 
     registry = ToolRegistry()
     registry.register(mock_tool)
-    action_engine = ActionEngine(registry=registry)
+    mock_security = MagicMock()
+    mock_security.verify_execution.return_value = "allowed"
+    action_engine = ActionEngine(registry=registry, security_manager=mock_security)
 
     # 3. Initialize Runner and Execute
     runner = AgentWorkflowRunner(

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 from src.domain.entities import Action, ActionResult
 from src.domain.interfaces.action_engine import AbstractActionEngine
 from src.domain.interfaces.memory_service import AbstractMemoryService
@@ -15,18 +15,21 @@ class ActionEngine(AbstractActionEngine):
         self,
         registry: ToolRegistry,
         memory_service: Optional[AbstractMemoryService] = None,
+        security_manager: Optional[Any] = None,
     ) -> None:
-        """Initializes the engine with a central tool registry and optional memory service.
+        """Initializes the engine with a central tool registry, optional memory service,
 
-        Args:
-            registry: The ToolRegistry instance containing registered tools.
-            memory_service: The optional memory service to log command history.
+        and security manager integration.
         """
         self.registry = registry
         self.memory_service = memory_service
 
+        from src.application.services.security_manager import SecurityManager
+
+        self.security_manager = security_manager or SecurityManager()
+
     def execute_action(self, action: Action) -> ActionResult:
-        """Looks up the matched tool and executes it with mapped arguments."""
+        """Looks up the matched tool and executes it with mapped arguments after validating security constraints."""
         tool_name = action.action_type
         logger.info(f"Action Engine executing request for tool: '{tool_name}'")
 
@@ -35,6 +38,27 @@ class ActionEngine(AbstractActionEngine):
         if not tool:
             error_msg = f"No registered tool found matching name: '{tool_name}'"
             logger.error(error_msg)
+            return ActionResult(
+                action_id=action.id,
+                status="failure",
+                error_message=error_msg,
+            )
+
+        # Enforce security manager verification policies
+        security_status = self.security_manager.verify_execution(
+            tool_name, action.parameters
+        )
+        if security_status == "denied":
+            error_msg = f"Security Violation: Access Denied. User role '{self.security_manager.get_user_role().value}' is not authorized to execute tool '{tool_name}'."
+            logger.warning(error_msg)
+            return ActionResult(
+                action_id=action.id,
+                status="failure",
+                error_message=error_msg,
+            )
+        elif security_status == "confirmation_required":
+            error_msg = f"Security Confirmation Required: Execution of High risk tool '{tool_name}' requires confirmation. Please retry with confirmed=True."
+            logger.warning(error_msg)
             return ActionResult(
                 action_id=action.id,
                 status="failure",

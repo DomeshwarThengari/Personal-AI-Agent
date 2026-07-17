@@ -34,6 +34,11 @@ from src.application.tools.personal_assistant_tools import (
     AssistantDailyBriefingTool,
     AssistantTriggerRoutineTool,
 )
+from src.application.tools.security_tools import (
+    AssistantViewSecurityStatusTool,
+    AssistantConfigureSecurityTool,
+    AssistantViewAuditLogsTool,
+)
 from src.application.tools.routing_tools import RouteToAgentTool
 from src.application.tools.system_time import SystemTimeTool
 from src.application.tools.app_launcher import AppLauncherTool
@@ -239,6 +244,9 @@ def run_chat_loop() -> None:
         registry.register(AssistantSendNotificationTool())
         registry.register(AssistantDailyBriefingTool())
         registry.register(AssistantTriggerRoutineTool())
+        registry.register(AssistantViewSecurityStatusTool())
+        registry.register(AssistantConfigureSecurityTool())
+        registry.register(AssistantViewAuditLogsTool())
 
         workflow_runner = MultiAgentWorkflowRunner(
             llm_service=llm_service,
