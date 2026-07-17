@@ -69,6 +69,23 @@ AGENT_TOOL_MAPPING = {
     ],
     "devops": [
         "devops_run_command",
+        "docker_list_containers",
+        "docker_restart_container",
+        "docker_view_logs",
+        "k8s_list_pods",
+        "k8s_describe_pod",
+        "k8s_restart_deployment",
+        "aws_list_ec2",
+        "aws_s3_list_buckets",
+        "aws_cloudwatch_logs",
+        "jenkins_run_pipeline",
+        "jenkins_view_build_logs",
+        "git_commit",
+        "git_push",
+        "git_clone",
+        "terraform_plan",
+        "terraform_apply",
+        "ansible_run_playbook",
     ],
 }
 

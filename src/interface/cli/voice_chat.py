@@ -1,6 +1,25 @@
 import sys
 from src.application.multi_agent.workflow import MultiAgentWorkflowRunner
-from src.application.tools.devops_tools import DevOpsRunCommandTool
+from src.application.tools.devops_tools import (
+    DevOpsRunCommandTool,
+    DockerListContainersTool,
+    DockerRestartContainerTool,
+    DockerViewLogsTool,
+    K8sListPodsTool,
+    K8sDescribePodTool,
+    K8sRestartDeploymentTool,
+    AWSListEC2Tool,
+    AWSS3ListBucketsTool,
+    AWSCloudWatchLogsTool,
+    JenkinsRunPipelineTool,
+    JenkinsViewBuildLogsTool,
+    GitCommitTool,
+    GitPushTool,
+    GitCloneTool,
+    TerraformPlanTool,
+    TerraformApplyTool,
+    AnsibleRunPlaybookTool,
+)
 from src.application.tools.routing_tools import RouteToAgentTool
 from src.application.tools.system_time import SystemTimeTool
 from src.application.tools.app_launcher import AppLauncherTool
@@ -154,6 +173,23 @@ def run_voice_chat() -> None:
         )
         registry.register(RouteToAgentTool())
         registry.register(DevOpsRunCommandTool())
+        registry.register(DockerListContainersTool())
+        registry.register(DockerRestartContainerTool())
+        registry.register(DockerViewLogsTool())
+        registry.register(K8sListPodsTool())
+        registry.register(K8sDescribePodTool())
+        registry.register(K8sRestartDeploymentTool())
+        registry.register(AWSListEC2Tool())
+        registry.register(AWSS3ListBucketsTool())
+        registry.register(AWSCloudWatchLogsTool())
+        registry.register(JenkinsRunPipelineTool())
+        registry.register(JenkinsViewBuildLogsTool())
+        registry.register(GitCommitTool())
+        registry.register(GitPushTool())
+        registry.register(GitCloneTool())
+        registry.register(TerraformPlanTool())
+        registry.register(TerraformApplyTool())
+        registry.register(AnsibleRunPlaybookTool())
 
         workflow_runner = MultiAgentWorkflowRunner(
             llm_service=llm_service,
