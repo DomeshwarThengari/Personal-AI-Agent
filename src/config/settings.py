@@ -28,6 +28,10 @@ class Settings(BaseSettings):
     PLAYWRIGHT_HEADLESS: bool = Field(default=True)
     PLAYWRIGHT_TIMEOUT: int = Field(default=30000)
 
+    VOICE_WAKE_WORD: str = Field(default="hey assistant")
+    VOICE_INTERRUPT_THRESHOLD: float = Field(default=0.03)
+    VOICE_INPUT_DURATION: float = Field(default=5.0)
+
     model_config = SettingsConfigDict(
         env_file=str(PROJECT_ROOT / ".env"),
         env_file_encoding="utf-8",

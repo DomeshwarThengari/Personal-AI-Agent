@@ -12,6 +12,9 @@ dependencies = [
     "langgraph>=0.1.0",
     "psutil>=5.9.0",
     "playwright>=1.40.0",
+    "SpeechRecognition>=3.10.0",
+    "sounddevice>=0.4.6",
+    "gTTS>=2.3.2",
 ]
 
 [project.optional-dependencies]

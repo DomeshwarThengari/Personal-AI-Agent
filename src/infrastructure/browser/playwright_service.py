@@ -155,9 +155,7 @@ class PlaywrightBrowserService(AbstractBrowserService):
                 page.wait_for_selector("video.html5-main-video", timeout=10000)
                 return f"Successfully found and started playing YouTube video matching '{query}'."
             else:
-                return (
-                    f"Searched YouTube for '{query}' but could not find a video link to play."
-                )
+                return f"Searched YouTube for '{query}' but could not find a video link to play."
         except Exception as e:
             logger.error(f"Error playing YouTube video '{query}': {e}")
             return f"Failed to play YouTube video '{query}': {e}"
