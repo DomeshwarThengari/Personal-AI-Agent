@@ -28,11 +28,27 @@ from src.application.tools.memory_tools import (
     MemorySaveTool,
     MemorySearchTool,
 )
+from src.application.tools.system_tools import (
+    SystemCreateFolderTool,
+    SystemRenameFileTool,
+    SystemCopyFileTool,
+    SystemMoveFileTool,
+    SystemDeleteFileTool,
+    SystemSearchFilesTool,
+    SystemOpenDownloadsTool,
+    SystemOpenDocumentsTool,
+    SystemReadCpuTool,
+    SystemReadRamTool,
+    SystemReadDiskTool,
+    SystemReadBatteryTool,
+    SystemMonitorProcessesTool,
+)
 from src.application.action_engine.engine import ActionEngine
 from src.config.settings import settings
 from src.domain.entities import Message
 from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
 from src.infrastructure.database.sqlite_memory import SQLiteMemoryService
+from src.infrastructure.system.local_system_service import LocalSystemService
 from src.infrastructure.llm.gemini import GeminiLLMError, GeminiLLMService
 from src.infrastructure.browser.playwright_service import PlaywrightBrowserService
 from src.utils.logging import setup_logging
@@ -75,9 +91,10 @@ def run_chat_loop() -> None:
 
     browser_service = None
     try:
-        # Initialize Database repository & Memory Service
+        # Initialize Database repository, Memory Service & System Service
         chat_repo = SQLiteChatRepository()
         memory_service = SQLiteMemoryService()
+        system_service = LocalSystemService()
 
         # Ask the user for a session ID (default to "default_session")
         session_id = (
@@ -128,6 +145,21 @@ def run_chat_loop() -> None:
         registry.register(CommandHistoryTool(memory_service))
         registry.register(MemorySaveTool(memory_service))
         registry.register(MemorySearchTool(memory_service))
+
+        # Register System tools
+        registry.register(SystemCreateFolderTool(system_service))
+        registry.register(SystemRenameFileTool(system_service))
+        registry.register(SystemCopyFileTool(system_service))
+        registry.register(SystemMoveFileTool(system_service))
+        registry.register(SystemDeleteFileTool(system_service))
+        registry.register(SystemSearchFilesTool(system_service))
+        registry.register(SystemOpenDownloadsTool(system_service))
+        registry.register(SystemOpenDocumentsTool(system_service))
+        registry.register(SystemReadCpuTool(system_service))
+        registry.register(SystemReadRamTool(system_service))
+        registry.register(SystemReadDiskTool(system_service))
+        registry.register(SystemReadBatteryTool(system_service))
+        registry.register(SystemMonitorProcessesTool(system_service))
 
         action_engine = ActionEngine(registry=registry, memory_service=memory_service)
 

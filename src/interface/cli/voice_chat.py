@@ -29,7 +29,23 @@ from src.application.tools.memory_tools import (
     MemorySaveTool,
     MemorySearchTool,
 )
+from src.application.tools.system_tools import (
+    SystemCreateFolderTool,
+    SystemRenameFileTool,
+    SystemCopyFileTool,
+    SystemMoveFileTool,
+    SystemDeleteFileTool,
+    SystemSearchFilesTool,
+    SystemOpenDownloadsTool,
+    SystemOpenDocumentsTool,
+    SystemReadCpuTool,
+    SystemReadRamTool,
+    SystemReadDiskTool,
+    SystemReadBatteryTool,
+    SystemMonitorProcessesTool,
+)
 from src.infrastructure.database.sqlite_memory import SQLiteMemoryService
+from src.infrastructure.system.local_system_service import LocalSystemService
 from src.application.action_engine.engine import ActionEngine
 from src.config.settings import settings
 from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
@@ -70,6 +86,7 @@ def run_voice_chat() -> None:
     try:
         chat_repo = SQLiteChatRepository()
         memory_service = SQLiteMemoryService()
+        system_service = LocalSystemService()
         session_id = "voice_session"
 
         # Initialize voice service
@@ -105,6 +122,21 @@ def run_voice_chat() -> None:
         registry.register(CommandHistoryTool(memory_service))
         registry.register(MemorySaveTool(memory_service))
         registry.register(MemorySearchTool(memory_service))
+
+        # System tools registration
+        registry.register(SystemCreateFolderTool(system_service))
+        registry.register(SystemRenameFileTool(system_service))
+        registry.register(SystemCopyFileTool(system_service))
+        registry.register(SystemMoveFileTool(system_service))
+        registry.register(SystemDeleteFileTool(system_service))
+        registry.register(SystemSearchFilesTool(system_service))
+        registry.register(SystemOpenDownloadsTool(system_service))
+        registry.register(SystemOpenDocumentsTool(system_service))
+        registry.register(SystemReadCpuTool(system_service))
+        registry.register(SystemReadRamTool(system_service))
+        registry.register(SystemReadDiskTool(system_service))
+        registry.register(SystemReadBatteryTool(system_service))
+        registry.register(SystemMonitorProcessesTool(system_service))
 
         action_engine = ActionEngine(registry=registry, memory_service=memory_service)
 
