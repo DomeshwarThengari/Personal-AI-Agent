@@ -21,6 +21,15 @@ from src.application.tools.browser_tools import (
     BrowserScreenshotTool,
     BrowserReadContentTool,
 )
+from src.application.tools.memory_tools import (
+    PreferenceSetTool,
+    PreferenceGetTool,
+    ProjectSaveTool,
+    CommandHistoryTool,
+    MemorySaveTool,
+    MemorySearchTool,
+)
+from src.infrastructure.database.sqlite_memory import SQLiteMemoryService
 from src.application.action_engine.engine import ActionEngine
 from src.config.settings import settings
 from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
@@ -60,6 +69,7 @@ def run_voice_chat() -> None:
 
     try:
         chat_repo = SQLiteChatRepository()
+        memory_service = SQLiteMemoryService()
         session_id = "voice_session"
 
         # Initialize voice service
@@ -88,7 +98,15 @@ def run_voice_chat() -> None:
         registry.register(BrowserScreenshotTool(browser_service))
         registry.register(BrowserReadContentTool(browser_service))
 
-        action_engine = ActionEngine(registry=registry)
+        # Memory tools registration
+        registry.register(PreferenceSetTool(memory_service))
+        registry.register(PreferenceGetTool(memory_service))
+        registry.register(ProjectSaveTool(memory_service))
+        registry.register(CommandHistoryTool(memory_service))
+        registry.register(MemorySaveTool(memory_service))
+        registry.register(MemorySearchTool(memory_service))
+
+        action_engine = ActionEngine(registry=registry, memory_service=memory_service)
 
         workflow_runner = AgentWorkflowRunner(
             llm_service=llm_service,
@@ -100,6 +118,7 @@ def run_voice_chat() -> None:
             voice_service=voice_service,
             workflow_runner=workflow_runner,
             chat_repo=chat_repo,
+            memory_service=memory_service,
             session_id=session_id,
         )
 

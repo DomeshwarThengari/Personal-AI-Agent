@@ -20,10 +20,19 @@ from src.application.tools.browser_tools import (
     BrowserScreenshotTool,
     BrowserReadContentTool,
 )
+from src.application.tools.memory_tools import (
+    PreferenceSetTool,
+    PreferenceGetTool,
+    ProjectSaveTool,
+    CommandHistoryTool,
+    MemorySaveTool,
+    MemorySearchTool,
+)
 from src.application.action_engine.engine import ActionEngine
 from src.config.settings import settings
 from src.domain.entities import Message
 from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
+from src.infrastructure.database.sqlite_memory import SQLiteMemoryService
 from src.infrastructure.llm.gemini import GeminiLLMError, GeminiLLMService
 from src.infrastructure.browser.playwright_service import PlaywrightBrowserService
 from src.utils.logging import setup_logging
@@ -37,8 +46,9 @@ SYSTEM_COLOR = "\x1b[1;35m"  # Bold Magenta
 RESET = "\x1b[0m"
 
 SYSTEM_INSTRUCTION = (
-    "You are a premium, production-grade Personal AI Assistant. "
-    "Respond with clear, helpful, and concise answers."
+    "You are a premium, production-grade Personal AI Assistant with long-term memory. "
+    "Use your memory tools to store or search preferences, project details, and "
+    "command histories when appropriate. Respond with clear, helpful, and concise answers."
 )
 
 
@@ -65,8 +75,9 @@ def run_chat_loop() -> None:
 
     browser_service = None
     try:
-        # Initialize Database repository
+        # Initialize Database repository & Memory Service
         chat_repo = SQLiteChatRepository()
+        memory_service = SQLiteMemoryService()
 
         # Ask the user for a session ID (default to "default_session")
         session_id = (
@@ -110,7 +121,15 @@ def run_chat_loop() -> None:
         registry.register(BrowserScreenshotTool(browser_service))
         registry.register(BrowserReadContentTool(browser_service))
 
-        action_engine = ActionEngine(registry=registry)
+        # Register Memory tools
+        registry.register(PreferenceSetTool(memory_service))
+        registry.register(PreferenceGetTool(memory_service))
+        registry.register(ProjectSaveTool(memory_service))
+        registry.register(CommandHistoryTool(memory_service))
+        registry.register(MemorySaveTool(memory_service))
+        registry.register(MemorySearchTool(memory_service))
+
+        action_engine = ActionEngine(registry=registry, memory_service=memory_service)
 
         workflow_runner = AgentWorkflowRunner(
             llm_service=llm_service,
@@ -125,6 +144,11 @@ def run_chat_loop() -> None:
 
                 if not user_input:
                     continue
+
+                # Log command in memory
+                memory_service.log_command(
+                    command=user_input, executed_by="user", status="success"
+                )
 
                 # Check exit commands
                 if user_input.lower() in ("/exit", "/quit"):

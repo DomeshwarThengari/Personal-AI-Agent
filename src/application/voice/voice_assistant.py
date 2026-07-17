@@ -1,5 +1,7 @@
 import time
+from typing import Optional
 from src.domain.interfaces.voice_service import AbstractVoiceService
+from src.domain.interfaces.memory_service import AbstractMemoryService
 from src.application.agent_workflow import AgentWorkflowRunner
 from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
 from src.domain.entities import Message
@@ -21,11 +23,13 @@ class VoiceAssistant:
         voice_service: AbstractVoiceService,
         workflow_runner: AgentWorkflowRunner,
         chat_repo: SQLiteChatRepository,
+        memory_service: Optional[AbstractMemoryService] = None,
         session_id: str = "voice_session",
     ) -> None:
         self._voice_service = voice_service
         self._workflow_runner = workflow_runner
         self._chat_repo = chat_repo
+        self._memory_service = memory_service
         self._session_id = session_id
 
         self._wake_word = settings.VOICE_WAKE_WORD
@@ -93,6 +97,11 @@ class VoiceAssistant:
                     continue
 
             consecutive_silence = 0  # Reset silence counter
+
+            if self._memory_service:
+                self._memory_service.log_command(
+                    command=command, executed_by="user", status="success"
+                )
 
             # 2. Check for explicit exit commands
             clean_cmd = command.lower().strip()
