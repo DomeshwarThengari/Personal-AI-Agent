@@ -1,8 +1,9 @@
 import time
-from typing import Optional
+from typing import Optional, Union
 from src.domain.interfaces.voice_service import AbstractVoiceService
 from src.domain.interfaces.memory_service import AbstractMemoryService
 from src.application.agent_workflow import AgentWorkflowRunner
+from src.application.multi_agent.workflow import MultiAgentWorkflowRunner
 from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
 from src.domain.entities import Message
 from src.config.settings import settings
@@ -21,7 +22,7 @@ class VoiceAssistant:
     def __init__(
         self,
         voice_service: AbstractVoiceService,
-        workflow_runner: AgentWorkflowRunner,
+        workflow_runner: Union[AgentWorkflowRunner, MultiAgentWorkflowRunner],
         chat_repo: SQLiteChatRepository,
         memory_service: Optional[AbstractMemoryService] = None,
         session_id: str = "voice_session",

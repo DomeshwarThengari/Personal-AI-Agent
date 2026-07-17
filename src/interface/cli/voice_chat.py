@@ -1,5 +1,7 @@
 import sys
-from src.application.agent_workflow import AgentWorkflowRunner
+from src.application.multi_agent.workflow import MultiAgentWorkflowRunner
+from src.application.tools.devops_tools import DevOpsRunCommandTool
+from src.application.tools.routing_tools import RouteToAgentTool
 from src.application.tools.system_time import SystemTimeTool
 from src.application.tools.app_launcher import AppLauncherTool
 from src.application.tools.registry import ToolRegistry
@@ -150,8 +152,10 @@ def run_voice_chat() -> None:
                 tools=registry.list_tools(),
             )
         )
+        registry.register(RouteToAgentTool())
+        registry.register(DevOpsRunCommandTool())
 
-        workflow_runner = AgentWorkflowRunner(
+        workflow_runner = MultiAgentWorkflowRunner(
             llm_service=llm_service,
             action_engine=action_engine,
             tools=registry.list_tools(),
