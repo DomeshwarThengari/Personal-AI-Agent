@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     SQLITE_DB_PATH: str = Field(default="data/assistant.db")
     CHROMA_DB_PATH: str = Field(default="data/chroma")
 
+    PLAYWRIGHT_HEADLESS: bool = Field(default=True)
+    PLAYWRIGHT_TIMEOUT: int = Field(default=30000)
+
     model_config = SettingsConfigDict(
         env_file=str(PROJECT_ROOT / ".env"),
         env_file_encoding="utf-8",

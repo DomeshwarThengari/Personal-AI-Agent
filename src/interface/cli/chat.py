@@ -8,11 +8,24 @@ from src.application.tools.app_agent_tools import (
     CloseAppTool,
     FocusAppTool,
 )
+from src.application.tools.browser_tools import (
+    BrowserOpenTool,
+    BrowserSearchGoogleTool,
+    BrowserSearchYoutubeTool,
+    BrowserPlayYoutubeTool,
+    BrowserClickTool,
+    BrowserScrollTool,
+    BrowserFillTool,
+    BrowserDownloadTool,
+    BrowserScreenshotTool,
+    BrowserReadContentTool,
+)
 from src.application.action_engine.engine import ActionEngine
 from src.config.settings import settings
 from src.domain.entities import Message
 from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
 from src.infrastructure.llm.gemini import GeminiLLMError, GeminiLLMService
+from src.infrastructure.browser.playwright_service import PlaywrightBrowserService
 from src.utils.logging import setup_logging
 
 # Color Escape Codes for Rich Terminal Styling
@@ -50,6 +63,7 @@ def run_chat_loop() -> None:
         print(f"Please update the .env file with your API key to start.{RESET}")
         return
 
+    browser_service = None
     try:
         # Initialize Database repository
         chat_repo = SQLiteChatRepository()
@@ -76,6 +90,7 @@ def run_chat_loop() -> None:
 
         # Initialize Gemini LLM, Tool Registry, Action Engine, and LangGraph runner
         llm_service = GeminiLLMService()
+        browser_service = PlaywrightBrowserService()
 
         registry = ToolRegistry()
         registry.register(SystemTimeTool())
@@ -84,6 +99,16 @@ def run_chat_loop() -> None:
         registry.register(LaunchAppTool())
         registry.register(CloseAppTool())
         registry.register(FocusAppTool())
+        registry.register(BrowserOpenTool(browser_service))
+        registry.register(BrowserSearchGoogleTool(browser_service))
+        registry.register(BrowserSearchYoutubeTool(browser_service))
+        registry.register(BrowserPlayYoutubeTool(browser_service))
+        registry.register(BrowserClickTool(browser_service))
+        registry.register(BrowserScrollTool(browser_service))
+        registry.register(BrowserFillTool(browser_service))
+        registry.register(BrowserDownloadTool(browser_service))
+        registry.register(BrowserScreenshotTool(browser_service))
+        registry.register(BrowserReadContentTool(browser_service))
 
         action_engine = ActionEngine(registry=registry)
 
@@ -93,57 +118,61 @@ def run_chat_loop() -> None:
             tools=registry.list_tools(),
         )
 
+        while True:
+            try:
+                # Prompt user
+                user_input = input(f"\n{USER_COLOR}You: {RESET}").strip()
+
+                if not user_input:
+                    continue
+
+                # Check exit commands
+                if user_input.lower() in ("/exit", "/quit"):
+                    print(f"\n{SYSTEM_COLOR}Goodbye!{RESET}")
+                    break
+
+                # Print thinking indicator
+                print(
+                    f"{INFO_COLOR}Assistant is thinking (LangGraph reasoning)...{RESET}",
+                    end="\r",
+                )
+
+                # Load history context from database dynamically in case it changed
+                current_history = chat_repo.get_session_messages(session_id)
+
+                # Execute Workflow
+                response = workflow_runner.run(
+                    session_id=session_id,
+                    history=current_history,
+                    user_input=user_input,
+                    system_instruction=SYSTEM_INSTRUCTION,
+                )
+
+                # Clear thinking indicator
+                print(" " * 60, end="\r")
+
+                # Output response
+                print(f"{AGENT_COLOR}AI: {RESET}{response.message.content}")
+
+                # Save new messages to SQLite Database
+                chat_repo.save_message(
+                    session_id, Message(role="user", content=user_input)
+                )
+                chat_repo.save_message(session_id, response.message)
+
+            except KeyboardInterrupt:
+                print(f"\n{SYSTEM_COLOR}Goodbye! (Session interrupted){RESET}")
+                break
+            except GeminiLLMError as ge:
+                print(f"\n{ERROR_COLOR}Gemini Error: {ge}{RESET}")
+            except Exception as e:
+                print(f"\n{ERROR_COLOR}Unexpected error: {e}{RESET}")
+
     except Exception as e:
         print(f"{ERROR_COLOR}Failed to initialize chat components: {e}{RESET}")
-        return
-
-    while True:
-        try:
-            # Prompt user
-            user_input = input(f"\n{USER_COLOR}You: {RESET}").strip()
-
-            if not user_input:
-                continue
-
-            # Check exit commands
-            if user_input.lower() in ("/exit", "/quit"):
-                print(f"\n{SYSTEM_COLOR}Goodbye!{RESET}")
-                break
-
-            # Print thinking indicator
-            print(
-                f"{INFO_COLOR}Assistant is thinking (LangGraph reasoning)...{RESET}",
-                end="\r",
-            )
-
-            # Load history context from database dynamically in case it changed
-            current_history = chat_repo.get_session_messages(session_id)
-
-            # Execute Workflow
-            response = workflow_runner.run(
-                session_id=session_id,
-                history=current_history,
-                user_input=user_input,
-                system_instruction=SYSTEM_INSTRUCTION,
-            )
-
-            # Clear thinking indicator
-            print(" " * 60, end="\r")
-
-            # Output response
-            print(f"{AGENT_COLOR}AI: {RESET}{response.message.content}")
-
-            # Save new messages to SQLite Database
-            chat_repo.save_message(session_id, Message(role="user", content=user_input))
-            chat_repo.save_message(session_id, response.message)
-
-        except KeyboardInterrupt:
-            print(f"\n{SYSTEM_COLOR}Goodbye! (Session interrupted){RESET}")
-            break
-        except GeminiLLMError as ge:
-            print(f"\n{ERROR_COLOR}Gemini Error: {ge}{RESET}")
-        except Exception as e:
-            print(f"\n{ERROR_COLOR}Unexpected error: {e}{RESET}")
+    finally:
+        if browser_service:
+            browser_service.close()
 
 
 if __name__ == "__main__":
