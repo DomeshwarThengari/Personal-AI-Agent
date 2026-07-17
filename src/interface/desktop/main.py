@@ -21,7 +21,6 @@ from PySide6.QtWidgets import (
     QInputDialog,
 )
 from PySide6.QtCore import Qt, QThread, Signal, QTimer
-from PySide6.QtGui import QFont
 
 # Import existing application dependencies
 from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
@@ -449,7 +448,9 @@ class MainWindow(QMainWindow):
         self.tbl_logs = QTableWidget()
         self.tbl_logs.setColumnCount(4)
         self.tbl_logs.setHorizontalHeaderLabels(["Time", "Tool", "Role", "Status"])
-        self.tbl_logs.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.tbl_logs.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.Stretch
+        )
         layout.addWidget(self.tbl_logs)
 
         btn_refresh_logs = QPushButton("Refresh Audit Logs")
@@ -709,10 +710,14 @@ class MainWindow(QMainWindow):
         # Save in database
         self.chat_repo.save_message(
             self.session_id,
-            Message(role=cast(Literal["user", "assistant", "system"], role), content=text),
+            Message(
+                role=cast(Literal["user", "assistant", "system"], role), content=text
+            ),
         )
         self.history.append(
-            Message(role=cast(Literal["user", "assistant", "system"], role), content=text)
+            Message(
+                role=cast(Literal["user", "assistant", "system"], role), content=text
+            )
         )
 
         # Speak it out if voice output is allowed

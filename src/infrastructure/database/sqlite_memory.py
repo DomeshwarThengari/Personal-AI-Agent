@@ -71,6 +71,11 @@ class SQLiteMemoryService(AbstractMemoryService):
         );
         """
 
+        create_preferences_idx = (
+            "CREATE INDEX IF NOT EXISTS idx_preferences_key ON preferences(key);"
+        )
+        create_command_history_idx = "CREATE INDEX IF NOT EXISTS idx_command_history_timestamp ON command_history(timestamp DESC);"
+
         try:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
@@ -78,8 +83,10 @@ class SQLiteMemoryService(AbstractMemoryService):
                 cursor.execute(create_projects_sql)
                 cursor.execute(create_command_history_sql)
                 cursor.execute(create_vector_memories_sql)
+                cursor.execute(create_preferences_idx)
+                cursor.execute(create_command_history_idx)
                 conn.commit()
-            logger.debug("Memory tables initialized successfully.")
+            logger.debug("Memory tables and indexes initialized successfully.")
         except Exception as e:
             logger.critical(
                 f"Failed to initialize memory database tables: {e}", exc_info=True

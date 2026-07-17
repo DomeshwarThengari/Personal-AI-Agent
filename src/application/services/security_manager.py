@@ -52,10 +52,12 @@ class SecurityManager:
             updated_at TEXT NOT NULL
         );
         """
+        create_audit_logs_idx = "CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON assistant_audit_logs(timestamp DESC);"
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(create_audit_logs)
             cursor.execute(create_preferences)
+            cursor.execute(create_audit_logs_idx)
             conn.commit()
 
     # --- Role & Settings Management (via preferences in DB) ---

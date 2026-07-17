@@ -39,11 +39,15 @@ class SQLiteChatRepository(AbstractChatRepository):
         create_index_sql = """
         CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id);
         """
+        create_compound_idx_sql = """
+        CREATE INDEX IF NOT EXISTS idx_messages_session_time ON messages(session_id, timestamp);
+        """
         try:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(create_table_sql)
                 cursor.execute(create_index_sql)
+                cursor.execute(create_compound_idx_sql)
                 conn.commit()
             logger.debug("Database initialized successfully.")
         except Exception as e:

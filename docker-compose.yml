@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  ai-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jojo_ai_agent
+    stdin_open: true
+    tty: true
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - VOICE_INPUT_DURATION=${VOICE_INPUT_DURATION:-4.0}
+      - VOICE_WAKE_WORD=${VOICE_WAKE_WORD:-jojo}
+      - SQLITE_DB_PATH=/app/data/assistant.db
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./downloads:/app/downloads
+    restart: no
