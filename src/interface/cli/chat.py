@@ -23,6 +23,17 @@ from src.application.tools.vision_tools import (
     VisionTakeScreenshotTool,
     VisionAnalyzeImageTool,
 )
+from src.application.tools.personal_assistant_tools import (
+    AssistantCalendarTool,
+    AssistantTodoTool,
+    AssistantNotesTool,
+    AssistantGetWeatherTool,
+    AssistantGetNewsTool,
+    AssistantSummarizeEmailsTool,
+    AssistantSendNotificationTool,
+    AssistantDailyBriefingTool,
+    AssistantTriggerRoutineTool,
+)
 from src.application.tools.routing_tools import RouteToAgentTool
 from src.application.tools.system_time import SystemTimeTool
 from src.application.tools.app_launcher import AppLauncherTool
@@ -219,6 +230,15 @@ def run_chat_loop() -> None:
         registry.register(AnsibleRunPlaybookTool())
         registry.register(VisionTakeScreenshotTool())
         registry.register(VisionAnalyzeImageTool())
+        registry.register(AssistantCalendarTool())
+        registry.register(AssistantTodoTool())
+        registry.register(AssistantNotesTool())
+        registry.register(AssistantGetWeatherTool())
+        registry.register(AssistantGetNewsTool())
+        registry.register(AssistantSummarizeEmailsTool())
+        registry.register(AssistantSendNotificationTool())
+        registry.register(AssistantDailyBriefingTool())
+        registry.register(AssistantTriggerRoutineTool())
 
         workflow_runner = MultiAgentWorkflowRunner(
             llm_service=llm_service,
