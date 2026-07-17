@@ -44,8 +44,10 @@ from src.application.tools.system_tools import (
     SystemReadBatteryTool,
     SystemMonitorProcessesTool,
 )
+from src.application.tools.planner_tools import PlannerExecuteTaskTool
 from src.infrastructure.database.sqlite_memory import SQLiteMemoryService
 from src.infrastructure.system.local_system_service import LocalSystemService
+from src.infrastructure.planner.gemini_planner import GeminiPlannerService
 from src.application.action_engine.engine import ActionEngine
 from src.config.settings import settings
 from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
@@ -138,7 +140,16 @@ def run_voice_chat() -> None:
         registry.register(SystemReadBatteryTool(system_service))
         registry.register(SystemMonitorProcessesTool(system_service))
 
+        planner_service = GeminiPlannerService()
         action_engine = ActionEngine(registry=registry, memory_service=memory_service)
+
+        registry.register(
+            PlannerExecuteTaskTool(
+                action_engine=action_engine,
+                planner_service=planner_service,
+                tools=registry.list_tools(),
+            )
+        )
 
         workflow_runner = AgentWorkflowRunner(
             llm_service=llm_service,
