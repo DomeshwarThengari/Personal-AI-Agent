@@ -19,6 +19,10 @@ from src.application.tools.devops_tools import (
     TerraformApplyTool,
     AnsibleRunPlaybookTool,
 )
+from src.application.tools.vision_tools import (
+    VisionTakeScreenshotTool,
+    VisionAnalyzeImageTool,
+)
 from src.application.tools.routing_tools import RouteToAgentTool
 from src.application.tools.system_time import SystemTimeTool
 from src.application.tools.app_launcher import AppLauncherTool
@@ -213,6 +217,8 @@ def run_chat_loop() -> None:
         registry.register(TerraformPlanTool())
         registry.register(TerraformApplyTool())
         registry.register(AnsibleRunPlaybookTool())
+        registry.register(VisionTakeScreenshotTool())
+        registry.register(VisionAnalyzeImageTool())
 
         workflow_runner = MultiAgentWorkflowRunner(
             llm_service=llm_service,

@@ -22,7 +22,11 @@ class MultiAgentState(TypedDict):
 
 
 AGENT_TOOL_MAPPING = {
-    "brain": ["route_to_agent"],
+    "brain": [
+        "route_to_agent",
+        "vision_take_screenshot",
+        "vision_analyze_image",
+    ],
     "planner": ["planner_execute_task"],
     "browser": [
         "browser_open_url",
@@ -86,6 +90,8 @@ AGENT_TOOL_MAPPING = {
         "terraform_plan",
         "terraform_apply",
         "ansible_run_playbook",
+        "vision_take_screenshot",
+        "vision_analyze_image",
     ],
 }
 

@@ -1,3 +1,4 @@
+from typing import Any
 from unittest.mock import patch
 from src.application.tools.devops_tools import (
     DockerListContainersTool,
@@ -21,7 +22,7 @@ from src.application.tools.devops_tools import (
 
 
 @patch("shutil.which", return_value=None)
-def test_docker_tools(mock_which) -> None:
+def test_docker_tools(mock_which: Any) -> None:
     # 1. List
     list_tool = DockerListContainersTool()
     res_list = list_tool.execute()
@@ -44,7 +45,7 @@ def test_docker_tools(mock_which) -> None:
 
 
 @patch("shutil.which", return_value=None)
-def test_kubernetes_tools(mock_which) -> None:
+def test_kubernetes_tools(mock_which: Any) -> None:
     # 1. List Pods
     list_tool = K8sListPodsTool()
     res_list = list_tool.execute()
@@ -68,7 +69,7 @@ def test_kubernetes_tools(mock_which) -> None:
 
 
 @patch("shutil.which", return_value=None)
-def test_aws_tools(mock_which) -> None:
+def test_aws_tools(mock_which: Any) -> None:
     # 1. List EC2
     ec2_tool = AWSListEC2Tool()
     res_ec2 = ec2_tool.execute()
@@ -101,7 +102,7 @@ def test_jenkins_tools() -> None:
 
 
 @patch("shutil.which", return_value=None)
-def test_git_tools(mock_which) -> None:
+def test_git_tools(mock_which: Any) -> None:
     # 1. Commit
     commit_tool = GitCommitTool()
     res_commit = commit_tool.execute(message="Initial commit")
@@ -122,7 +123,7 @@ def test_git_tools(mock_which) -> None:
 
 
 @patch("shutil.which", return_value=None)
-def test_terraform_tools(mock_which) -> None:
+def test_terraform_tools(mock_which: Any) -> None:
     # 1. Plan
     plan_tool = TerraformPlanTool()
     res_plan = plan_tool.execute()
@@ -138,7 +139,7 @@ def test_terraform_tools(mock_which) -> None:
 
 
 @patch("shutil.which", return_value=None)
-def test_ansible_tools(mock_which) -> None:
+def test_ansible_tools(mock_which: Any) -> None:
     # 1. Run Playbook (Mutating - needs confirmation)
     ansible_tool = AnsibleRunPlaybookTool()
     res_unconfirmed = ansible_tool.execute(playbook_path="site.yml", confirmed=False)
