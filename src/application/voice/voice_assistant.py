@@ -40,6 +40,16 @@ class VoiceAssistant:
         """Starts the main passive wake word loop."""
         self._is_running = True
         logger.info("Starting Voice Assistant passive listening loop.")
+
+        # Clear stale conversation history from previous sessions
+        try:
+            self._chat_repo.clear_session(self._session_id)
+            logger.debug(
+                f"Stale conversation history cleared for session: {self._session_id}"
+            )
+        except Exception as e:
+            logger.warning(f"Could not clear conversation history: {e}")
+
         print("\n==============================================")
         print("Siri-like Voice Assistant Active")
         print(f"Wake word: '{self._wake_word}'")
