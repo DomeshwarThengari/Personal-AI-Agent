@@ -27,7 +27,9 @@ def test_vision_take_screenshot_tool() -> None:
             os.remove(temp_path)
 
 
-def test_vision_analyze_image_tool_simulated() -> None:
+@patch("src.application.tools.vision_tools.settings")
+def test_vision_analyze_image_tool_simulated(mock_settings: Any) -> None:
+    mock_settings.GEMINI_API_KEY = "your_gemini_api_key_here"
     tool = VisionAnalyzeImageTool()
     assert tool.name == "vision_analyze_image"
 

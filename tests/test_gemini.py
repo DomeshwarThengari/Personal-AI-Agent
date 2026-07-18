@@ -13,7 +13,7 @@ def test_gemini_service_initialization() -> None:
 
 def test_gemini_service_missing_api_key() -> None:
     """Verifies that generate_response raises a GeminiLLMError if no key is configured."""
-    service = GeminiLLMService(api_key="")
+    service = GeminiLLMService(api_key="your_gemini_api_key_here")
     with pytest.raises(GeminiLLMError, match="GEMINI_API_KEY is not configured"):
         service.generate_response([Message(role="user", content="Hello")])
 

@@ -60,6 +60,26 @@ class GeminiLLMService(AbstractLLMService):
             )
         return mapped
 
+    def _clean_schema(self, schema: dict[str, Any]) -> dict[str, Any]:
+        """Recursively removes keys not supported by the Gemini API Schema (e.g., 'default')."""
+        if not isinstance(schema, dict):
+            return schema
+
+        cleaned: dict[str, Any] = {}
+        for k, v in schema.items():
+            if k == "default":
+                continue
+            if isinstance(v, dict):
+                cleaned[k] = self._clean_schema(v)
+            elif isinstance(v, list):
+                cleaned[k] = [
+                    self._clean_schema(item) if isinstance(item, dict) else item
+                    for item in v
+                ]
+            else:
+                cleaned[k] = v
+        return cleaned
+
     def generate_response(
         self,
         messages: List[Message],
@@ -85,11 +105,14 @@ class GeminiLLMService(AbstractLLMService):
             if tools:
                 declarations = []
                 for t in tools:
+                    cleaned_params = (
+                        self._clean_schema(t.parameters) if t.parameters else None
+                    )
                     declarations.append(
                         genai.types.FunctionDeclaration(
                             name=t.name,
                             description=t.description,
-                            parameters=t.parameters,
+                            parameters=cleaned_params,
                         )
                     )
                 gemini_tools = [genai.types.Tool(function_declarations=declarations)]
