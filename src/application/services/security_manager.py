@@ -213,8 +213,9 @@ class SecurityManager:
             "browser_open_url": RiskLevel.LOW,
             "browser_search_google": RiskLevel.LOW,
             "browser_search_youtube": RiskLevel.LOW,
-            "browser_take_screenshot": RiskLevel.LOW,
-            "browser_read_page": RiskLevel.LOW,
+            "browser_play_youtube": RiskLevel.LOW,
+            "browser_screenshot": RiskLevel.LOW,
+            "browser_read_page_content": RiskLevel.LOW,
             "vision_take_screenshot": RiskLevel.LOW,
             "vision_analyze_image": RiskLevel.LOW,
             "assistant_get_weather": RiskLevel.LOW,
@@ -250,10 +251,10 @@ class SecurityManager:
             "assistant_trigger_routine": RiskLevel.MEDIUM,
             "assistant_configure_security": RiskLevel.MEDIUM,
             "assistant_view_audit_logs": RiskLevel.MEDIUM,
-            "browser_click_button": RiskLevel.MEDIUM,
+            "browser_click": RiskLevel.MEDIUM,
             "browser_scroll": RiskLevel.MEDIUM,
-            "browser_fill_form": RiskLevel.MEDIUM,
-            "browser_download_file": RiskLevel.MEDIUM,
+            "browser_fill": RiskLevel.MEDIUM,
+            "browser_download": RiskLevel.MEDIUM,
         }
 
         # Anything else defaults to HIGH (destructive/mutating/unspecified)
