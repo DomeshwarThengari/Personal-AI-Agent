@@ -17,7 +17,7 @@ class GeminiPlannerService(AbstractPlannerService):
     def __init__(
         self,
         api_key: Optional[str] = None,
-        model_name: str = "gemini-1.5-flash",
+        model_name: str = "gemini-flash-latest",
     ) -> None:
         self.model_name = model_name
         self.api_key = api_key or settings.GEMINI_API_KEY

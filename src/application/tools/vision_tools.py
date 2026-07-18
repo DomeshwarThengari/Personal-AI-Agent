@@ -194,7 +194,7 @@ class VisionAnalyzeImageTool(AbstractTool):
 
         try:
             genai.configure(api_key=api_key)  # type: ignore[attr-defined]
-            model = genai.GenerativeModel("gemini-1.5-flash")  # type: ignore[attr-defined]
+            model = genai.GenerativeModel("gemini-flash-latest")  # type: ignore[attr-defined]
             img = PIL.Image.open(image_path)
 
             res = model.generate_content(contents=[img, prompt])
