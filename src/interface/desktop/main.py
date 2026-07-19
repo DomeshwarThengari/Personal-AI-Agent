@@ -26,8 +26,11 @@ from PySide6.QtCore import Qt, QThread, Signal, QTimer
 from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
 from src.infrastructure.database.sqlite_memory import SQLiteMemoryService
 from src.infrastructure.system.local_system_service import LocalSystemService
+from src.config.settings import settings
 from src.infrastructure.planner.gemini_planner import GeminiPlannerService
+from src.infrastructure.planner.ollama_planner import OllamaPlannerService
 from src.infrastructure.llm.gemini import GeminiLLMService
+from src.infrastructure.llm.ollama import OllamaLLMService
 from src.infrastructure.browser.playwright_service import PlaywrightBrowserService
 from src.infrastructure.voice.voice_service import VoiceService
 from src.application.tools.registry import ToolRegistry
@@ -206,7 +209,10 @@ class MainWindow(QMainWindow):
         self.memory_service = SQLiteMemoryService()
         self.browser_service = PlaywrightBrowserService()
         self.system_service = LocalSystemService()
-        self.llm_service = GeminiLLMService()
+        if settings.LLM_PROVIDER == "ollama":
+            self.llm_service = OllamaLLMService()
+        else:
+            self.llm_service = GeminiLLMService()
         self.voice_service = VoiceService()
         self.security_manager = SecurityManager()
 
@@ -220,7 +226,10 @@ class MainWindow(QMainWindow):
         self._register_all_tools()
 
         # Build Action Engine & Planner
-        self.planner_service = GeminiPlannerService()
+        if settings.LLM_PROVIDER == "ollama":
+            self.planner_service = OllamaPlannerService()
+        else:
+            self.planner_service = GeminiPlannerService()
         self.action_engine = ActionEngine(
             registry=self.registry,
             memory_service=self.memory_service,

@@ -92,7 +92,9 @@ from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
 from src.infrastructure.database.sqlite_memory import SQLiteMemoryService
 from src.infrastructure.system.local_system_service import LocalSystemService
 from src.infrastructure.planner.gemini_planner import GeminiPlannerService
+from src.infrastructure.planner.ollama_planner import OllamaPlannerService
 from src.infrastructure.llm.gemini import GeminiLLMError, GeminiLLMService
+from src.infrastructure.llm.ollama import OllamaLLMService
 from src.infrastructure.browser.playwright_service import PlaywrightBrowserService
 from src.utils.logging import setup_logging
 
@@ -121,8 +123,8 @@ def run_chat_loop() -> None:
     print(f"Type '/exit' or '/quit' to close the session.{RESET}")
     print(f"{SYSTEM_COLOR}=================================================={RESET}")
 
-    # Check API Key configuration
-    if (
+    # Check API Key configuration for Gemini
+    if settings.LLM_PROVIDER == "gemini" and (
         not settings.GEMINI_API_KEY
         or settings.GEMINI_API_KEY == "your_gemini_api_key_here"
     ):
@@ -159,8 +161,11 @@ def run_chat_loop() -> None:
                 f"{SYSTEM_COLOR}------------------------------------------------------------{RESET}"
             )
 
-        # Initialize Gemini LLM, Tool Registry, Action Engine, and LangGraph runner
-        llm_service = GeminiLLMService()
+        # Initialize LLM, Tool Registry, Action Engine, and LangGraph runner
+        if settings.LLM_PROVIDER == "ollama":
+            llm_service = OllamaLLMService()
+        else:
+            llm_service = GeminiLLMService()
         browser_service = PlaywrightBrowserService()
 
         registry = ToolRegistry()
@@ -204,7 +209,10 @@ def run_chat_loop() -> None:
         registry.register(SystemReadBatteryTool(system_service))
         registry.register(SystemMonitorProcessesTool(system_service))
 
-        planner_service = GeminiPlannerService()
+        if settings.LLM_PROVIDER == "ollama":
+            planner_service = OllamaPlannerService()
+        else:
+            planner_service = GeminiPlannerService()
         action_engine = ActionEngine(registry=registry, memory_service=memory_service)
 
         registry.register(

@@ -89,10 +89,12 @@ from src.application.tools.planner_tools import PlannerExecuteTaskTool
 from src.infrastructure.database.sqlite_memory import SQLiteMemoryService
 from src.infrastructure.system.local_system_service import LocalSystemService
 from src.infrastructure.planner.gemini_planner import GeminiPlannerService
+from src.infrastructure.planner.ollama_planner import OllamaPlannerService
 from src.application.action_engine.engine import ActionEngine
 from src.config.settings import settings
 from src.infrastructure.database.sqlite_repo import SQLiteChatRepository
 from src.infrastructure.llm.gemini import GeminiLLMService
+from src.infrastructure.llm.ollama import OllamaLLMService
 from src.infrastructure.browser.playwright_service import PlaywrightBrowserService
 from src.infrastructure.voice.voice_service import VoiceService
 from src.application.voice.voice_assistant import VoiceAssistant
@@ -108,8 +110,8 @@ RESET = "\x1b[0m"
 def run_voice_chat() -> None:
     setup_logging()
 
-    # 1. Check API Key
-    if (
+    # 1. Check API Key for Gemini
+    if settings.LLM_PROVIDER == "gemini" and (
         not settings.GEMINI_API_KEY
         or settings.GEMINI_API_KEY == "your_gemini_api_key_here"
     ):
@@ -135,8 +137,11 @@ def run_voice_chat() -> None:
         # Initialize voice service
         voice_service = VoiceService(force_mock=force_mock)
 
-        # Initialize Gemini LLM, Tool Registry, Action Engine, and LangGraph runner
-        llm_service = GeminiLLMService()
+        # Initialize LLM, Tool Registry, Action Engine, and LangGraph runner
+        if settings.LLM_PROVIDER == "ollama":
+            llm_service = OllamaLLMService()
+        else:
+            llm_service = GeminiLLMService()
         browser_service = PlaywrightBrowserService()
 
         registry = ToolRegistry()
@@ -181,7 +186,10 @@ def run_voice_chat() -> None:
         registry.register(SystemReadBatteryTool(system_service))
         registry.register(SystemMonitorProcessesTool(system_service))
 
-        planner_service = GeminiPlannerService()
+        if settings.LLM_PROVIDER == "ollama":
+            planner_service = OllamaPlannerService()
+        else:
+            planner_service = GeminiPlannerService()
         action_engine = ActionEngine(registry=registry, memory_service=memory_service)
 
         registry.register(

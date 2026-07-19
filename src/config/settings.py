@@ -22,6 +22,10 @@ class Settings(BaseSettings):
 
     GEMINI_API_KEY: str = Field(default="")
 
+    LLM_PROVIDER: Literal["gemini", "ollama"] = Field(default="gemini")
+    OLLAMA_HOST: str = Field(default="http://localhost:11434")
+    OLLAMA_MODEL: str = Field(default="llama3.1")
+
     SQLITE_DB_PATH: str = Field(default="data/assistant.db")
     CHROMA_DB_PATH: str = Field(default="data/chroma")
 
